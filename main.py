@@ -1,6 +1,13 @@
 from bs4 import BeautifulSoup
 import requests
 from os import environ
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+import time
+
+chromeOptions = webdriver.ChromeOptions()
+chromeOptions.add_experimental_option("detach", True)
+driver = webdriver.Chrome(options=chromeOptions)
 
 # Scrape the links, addresses, and prices of the rental properties
 header = {
@@ -34,3 +41,24 @@ all_addresses_elements = soup.select(".StyledPropertyCardDataWrapper address")
 all_addresses = [address.get_text().replace(" | ", " ").strip() for address in all_addresses_elements]
 print(f"\n After having been cleaned up, the {len(all_addresses)} addresses now look like this: \n")
 print(all_addresses)
+
+# Get the Google sheet
+# Add fill in the link to your own Google From
+for n in range(len(all_links)):
+    driver.get(FORM)
+    time.sleep(2)
+
+    # Use the xpath to select the "short answer" fields in Google Form.
+    address = driver.find_element(By.XPATH, value='//*[@id="mG61Hd"]/div[2]/div/div[2]/div[1]/div/div/div[2]/div/div['
+                                                  '1]/div/div[1]/input')
+    price = driver.find_element(By.XPATH, value='//*[@id="mG61Hd"]/div[2]/div/div[2]/div[2]/div/div/div[2]/div/div['
+                                                '1]/div/div[1]/input')
+    link = driver.find_element(By.XPATH, value='//*[@id="mG61Hd"]/div[2]/div/div[2]/div[3]/div/div/div[2]/div/div['
+                                               '1]/div/div[1]/input')
+    submit_button = driver.find_element(By.XPATH, value='//*[@id="mG61Hd"]/div[2]/div/div[3]/div[1]/div['
+                                                        '1]/div/span/span')
+
+    address.send_keys(all_addresses[n])
+    price.send_keys(all_prices[n])
+    link.send_keys(all_links[n])
+    submit_button.click()
